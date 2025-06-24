@@ -6,15 +6,15 @@
     <title>Hasil</title>
 </head>
 <body>
-    <h1>{{ result }}</h1>
-    <h1>{{ barangTerpilih }}</h1>
     {% for i in range(jumlahData) %}
-        <h1>Jumlah Partikel : {{ barangTerpilih[i][0] }}</h1>
-        <ul>
+        <h1>kasus ke {{ i+1}} dengan jumlah Partikel {{ barangTerpilih[i][0] }}</h1>
+        <h3>keuntungan : {{ result[i][1][0] }}</h3>
+        <ul>barang yang terpilih :
             {% for j in barangTerpilih[i][1] %}
                 <li>{{ j }}</li>
             {% endfor %}
         </ul>
     {% endfor %}
+    <img src="data:image/png;base64,{{ plot_url }}" alt="plot">
 </body>
 </html>
