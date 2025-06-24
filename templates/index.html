@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knapsack PSO App</title>
+    <style>
+        table, th, td { border: 1px solid black; border-collapse: collapse; padding: 4px; }
+        th, td { text-align: center; }
+        form.inline { display: inline; }
+    </style>
+</head>
+<body>
+    <h1>Knapsack Problem using PSO</h1>
+    <h2>Parameter PSO</h2>
+    <form method="POST">
+        <label>Kapasitas Knapsack: <input type="number" step="any" name="maxKnapsack" required></label><br>
+        <label>Jumlah Iterasi: <input type="number" name="iterasi" required></label><br>
+        <label>Jumlah Partikel: <input type="number" name="pop_size" required></label><br>
+        <button type="submit" name="run_pso">Jalankan PSO</button>
+    </form>
+    <h2>Data Item</h2>
+    <form method="POST">
+        <input type="number" step="any" name="berat" placeholder="Berat" required>
+        <input type="number" step="any" name="nilai" placeholder="Nilai" required>
+        <button type="submit" name="add_item">Tambah Item</button>
+    </form>
+    <table>
+        <tr><th>No</th><th>Berat</th><th>Nilai</th><th>Aksi</th></tr>
+        {% for item in items %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>
+                <form method="POST" class="inline">
+                    <input type="hidden" name="edit_index" value="{{ loop.index0 }}">
+                    <input type="number" step="any" name="edit_berat" value="{{ item[0] }}" required>
+            </td>
+            <td>
+                    <input type="number" step="any" name="edit_nilai" value="{{ item[1] }}" required>
+            </td>
+            <td>
+                    <button type="submit" name="edit_item">Edit</button>
+                </form>
+                <form method="POST" class="inline">
+                    <input type="hidden" name="delete_index" value="{{ loop.index0 }}">
+                    <button type="submit" name="delete_item" onclick="return confirm('Hapus item ini?')">Hapus</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

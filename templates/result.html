@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Knapsack PSO</title>
+    <style>
+        table, th, td { border: 1px solid black; border-collapse: collapse; padding: 4px; }
+        th, td { text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>Hasil Knapsack PSO</h1>
+    <h2>Solusi Terbaik</h2>
+    <p><b>Fitness:</b> {{ gBest[0] }}<br>
+       <b>Binary:</b> {{ gBest[1] }}<br>
+       <b>Total Berat:</b> {{ total_berat }}<br>
+       <b>Total Nilai:</b> {{ total_nilai }}<br>
+       <b>Kapasitas Knapsack:</b> {{ maxKnapsack }}</p>
+    <h2>Item Terpilih</h2>
+    <table>
+        <tr><th>No</th><th>Berat</th><th>Nilai</th></tr>
+        {% for idx, berat, nilai in selected_items %}
+        <tr><td>{{ idx }}</td><td>{{ berat }}</td><td>{{ nilai }}</td></tr>
+        {% endfor %}
+    </table>
+    <h2>Grafik Fitness per Generasi</h2>
+    <img src="{{ url_for('fitness_plot') }}" alt="Fitness Plot">
+    <br><br>
+    <a href="/">&larr; Kembali ke Beranda</a>
+</body>
+</html>
