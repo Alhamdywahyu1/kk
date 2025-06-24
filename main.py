@@ -1,105 +1,139 @@
-from flask import Flask, request, render_template, redirect, url_for, session, send_file
-import os
 import io
-import matplotlib.pyplot as plt
+from flask import Flask
+from flask import send_file
+from flask import request
+from flask import render_template
 from KnapsackPSO import Knapsack_PSO
+import matplotlib.pyplot as plt
+import base64
 
 app = Flask(__name__)
-app.secret_key = 'knapsack_secret_key'
-
-# Helper untuk inisialisasi data item di session
-
-def get_items():
-    if 'items' not in session:
-        session['items'] = []
-    return session['items']
-
-def set_items(items):
-    session['items'] = items
-
-@app.route('/', methods=['GET', 'POST'])
+@app.route("/")
 def index():
-    items = get_items()
-    result = None
-    if request.method == 'POST':
-        # Tambah item
-        if 'add_item' in request.form:
-            berat = float(request.form['berat'])
-            nilai = float(request.form['nilai'])
-            items.append([berat, nilai])
-            set_items(items)
-        # Edit item
-        elif 'edit_item' in request.form:
-            idx = int(request.form['edit_index'])
-            berat = float(request.form['edit_berat'])
-            nilai = float(request.form['edit_nilai'])
-            items[idx] = [berat, nilai]
-            set_items(items)
-        # Hapus item
-        elif 'delete_item' in request.form:
-            idx = int(request.form['delete_index'])
-            items.pop(idx)
-            set_items(items)
-        # Jalankan PSO
-        elif 'run_pso' in request.form:
-            maxKnapsack = float(request.form['maxKnapsack'])
-            iterasi = int(request.form['iterasi'])
-            pop_size = int(request.form['pop_size'])
-            if len(items) > 0:
-                pso = Knapsack_PSO(items, maxKnapsack, iterasi, pop_size)
-                pso.run()
-                # Simpan hasil ke session
-                session['result'] = {
-                    'gBest': pso.gBest,
-                    'history': pso.history,
-                    'maxKnapsack': maxKnapsack,
-                    'items': items
-                }
-                return redirect(url_for('result'))
-    return render_template('index.html', items=items)
+    data_barang = [
+        ["Furadan 2 kg", 2, 10, 19500, 30500],
+        ["Amegrass 10 kg", 10, 4, 55000, 67500],
+        ["Polaram 1 kg", 1, 16, 60000, 68000],
+        ["Plastik mulsa 18 kg", 18, 2, 730000, 790000],
+        ["Topsin M 500 g", 0.5, 20, 62000, 75000],
+        ["Klopindo 100 g", 0.1, 10, 15000, 23000],
+        ["Lannate Biru 100 g", 0.1, 10, 25000, 29000],
+        ["Lannate Merah 100 g", 0.1, 20, 20000, 27000],
+        ["Lannate Merah 15 g", 0.015, 40, 15000, 25000],
+        ["Furadan 3 gr 1kg", 1, 10, 16000, 24500],
+        ["Metindo 25 wp 100 g", 0.1, 20, 27500, 35000],
+        ["Confidor 100 g", 0.1, 10, 26000, 31500],
+        ["Dangke 100 g", 0.1, 10, 15000, 20500],
+        ["Dangke 40 WP 250 gr", 0.25, 20, 42000, 55000],
+        ["Plastik mulsa 9 kg", 9, 5, 305000, 350000],
+        ["Plastik mulsa 15 kg", 15, 4, 457000, 500000],
+        ["Amegrass 5 kg", 5, 10, 315000, 350000],
+        ["Teku 100 EC 100 g", 0.1, 50, 21000, 30000],
+        ["Teku 100 EC 200 g", 0.2, 40, 38000, 45000],
+        ["Teku 100 EC 400 g", 0.4, 20, 72500, 80000],
+        ["Crowen 113 EC 80 g", 0.08, 50, 13000, 20000],
+        ["Crowen 113 EC 200 g", 0.2, 40, 23500, 30000],
+        ["Crowen 113 EC 400 g", 0.4, 20, 40000, 49500],
+        ["Dithane 200 g", 0.2, 15, 17000, 24000],
+        ["Antracol 250 g", 0.25, 18, 30500, 35000],
+        ["Antracol 500 g", 0.5, 12, 52000, 60000],
+        ["Benstar 200 g", 0.2, 22, 18000, 23000],
+        ["Masalgin 200 g", 0.2, 14, 16000, 20000],
+        ["Phycozan 200 g", 0.2, 17, 16000, 21000],
+        ["Acrobat 10 g", 0.01, 20, 8000, 12000],
+        ["Acrobat 40 g", 0.04, 6, 30000, 37000],
+        ["Gandsi. D 500 g", 0.5, 10, 22500, 28000],
+        ["Gandsi. B 500 g", 0.5, 15, 21000, 30500],
+        ["Ridomild gold 100 g", 0.1, 50, 24500, 30000],
+        ["Saromyl 25 g", 0.025, 20, 27500, 35000],
+        ["Saromyl 5 g", 0.005, 50, 8500, 12000],
+        ["Procure 400 g", 0.4, 17, 41000, 50000],
+        ["Starmyl 100 g", 0.1, 32, 48000, 59000],
+        ["Dense 200 g", 0.2, 12, 30000, 38000],
+        ["BM Toplas 100 g", 0.1, 20, 14500, 20000],
+        ["BM Zebco 1 kg", 1, 5, 52000, 64000]
+    ]
+    return render_template("index.html", data=data_barang)
 
-@app.route('/result')
+@app.route("/result", methods=["GET", "POST"])
 def result():
-    result = session.get('result', None)
-    if not result:
-        return redirect(url_for('index'))
-    # Data untuk tabel hasil
-    gBest = result['gBest']
-    items = result['items']
-    maxKnapsack = result['maxKnapsack']
-    # Hitung total berat dan nilai dari solusi terbaik
-    if gBest[1]:
-        selected = [int(x) for x in gBest[1]]
-        total_berat = sum(items[i][0] for i in range(len(items)) if selected[i])
-        total_nilai = sum(items[i][1] for i in range(len(items)) if selected[i])
-        selected_items = [(i+1, items[i][0], items[i][1]) for i in range(len(items)) if selected[i]]
-    else:
-        total_berat = 0
-        total_nilai = 0
-        selected_items = []
-    return render_template('result.html', gBest=gBest, total_berat=total_berat, total_nilai=total_nilai, maxKnapsack=maxKnapsack, selected_items=selected_items)
+    if request.method == "POST":
+        banyakKasus = request.form.get('banyakkasus')
+        kasusPopulasi = request.form.getlist('partikel')
+        namabarang = request.form.getlist('namabarang')
+        beratbarang = request.form.getlist('beratbarang')
+        banyakbarang = request.form.getlist('banyakbarang')
+        hargabeli = request.form.getlist('hargabeli')
+        hargajual = request.form.getlist('hargajual')
 
-@app.route('/fitness_plot')
-def fitness_plot():
-    result = session.get('result', None)
-    if not result:
-        return redirect(url_for('index'))
-    history = result['history']
-    generations = [h[0] for h in history]
-    fitness = [h[1][0] if h[1][0] is not None else 0 for h in history]
-    plt.figure(figsize=(6,4))
-    plt.plot(generations, fitness, marker='o')
-    plt.title('Fitness Terbaik per Generasi')
-    plt.xlabel('Generasi')
-    plt.ylabel('Fitness')
-    plt.tight_layout()
-    img = io.BytesIO()
-    plt.savefig(img, format='png')
-    plt.close()
-    img.seek(0)
-    return send_file(img, mimetype='image/png')
+        nama_barang = []
+        data = []
 
-if __name__ == '__main__':
-    # Production ready - bisa berjalan di cloud hosting
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+        for i in range(len(namabarang)):
+            nama_barang.append(namabarang[i])
+            data.append([round(float(beratbarang[i]) * int(banyakbarang[i]), 3), (int(hargajual[i]) - int(hargabeli[i])) * int(banyakbarang[i])])
+
+        maxKnapsack = int(request.form.get('maxKnapsack'))
+        iterasi = int(request.form.get('iterasi'))
+
+
+        result = []
+        barangTerpilih = []
+        recent = []
+
+        fig, ax = plt.subplots()
+
+        for i in range(len(kasusPopulasi)):
+            pso = Knapsack_PSO(data=data, maxKnapsack=maxKnapsack, iterasi=int(iterasi), pop_size=int(kasusPopulasi[i]))
+            pso.run()
+            tempX = []
+            tempY = []
+            for k in pso.history:
+                tempX.append(k[0])
+                tempY.append(k[1][0])
+            recent.append([tempX, tempY])
+            tempBarangTerpilih = []
+            for j in range(len(pso.gBest[1])):
+                if pso.gBest[1][j] == '1':
+                    tempBarangTerpilih.append(nama_barang[j])
+            barangTerpilih.append([kasusPopulasi[i], tempBarangTerpilih])
+            result.append([kasusPopulasi[i], pso.gBest])
+
+        # Buat plot Matplotlib
+        for i in recent:
+            ax.plot(i[0], i[1])
+        ax.grid(True)
+        ax.set_title('Hasil Grafik')
+        ax.set_xlabel('Iterasi')
+        ax.set_ylabel('Fitness')
+
+        img_buffer = io.BytesIO()
+        plt.savefig(img_buffer, format='png')
+        img_buffer.seek(0)
+        plot_url = base64.b64encode(img_buffer.getvalue()).decode()
+        plt.close(fig)
+        return render_template("result.html", result=result, barangTerpilih=barangTerpilih, jumlahData=len(result), plot_url=plot_url, recent=recent, lenRecent=len(recent[0]), kasusPopulasi=kasusPopulasi)
+    return "Error"
+
+# @app.route("/about")
+# def about():
+#     return "<h1>About</h1>"
+
+# @app.route("/profile/<username>")
+# def profile(username):
+#     return f"<h1>{username}</h1>"
+
+# @app.route("/cobarequest", methods=["POST", "GET"])
+# def cobarequest():
+#     if request.method == "POST":
+#         return f"<h1>POST</h1>"
+#     else:
+#         return f"<h1>GET</h1>"
+
+app.run(debug=True)
+
+# [
+#     [
+#         [x], [y]
+#     ]
+# ]

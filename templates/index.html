@@ -3,51 +3,305 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Knapsack PSO App</title>
-    <style>
-        table, th, td { border: 1px solid black; border-collapse: collapse; padding: 4px; }
-        th, td { text-align: center; }
-        form.inline { display: inline; }
-    </style>
+    <title>Beranda</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>Knapsack Problem using PSO</h1>
-    <h2>Parameter PSO</h2>
-    <form method="POST">
-        <label>Kapasitas Knapsack: <input type="number" step="any" name="maxKnapsack" required></label><br>
-        <label>Jumlah Iterasi: <input type="number" name="iterasi" required></label><br>
-        <label>Jumlah Partikel: <input type="number" name="pop_size" required></label><br>
-        <button type="submit" name="run_pso">Jalankan PSO</button>
-    </form>
-    <h2>Data Item</h2>
-    <form method="POST">
-        <input type="number" step="any" name="berat" placeholder="Berat" required>
-        <input type="number" step="any" name="nilai" placeholder="Nilai" required>
-        <button type="submit" name="add_item">Tambah Item</button>
-    </form>
-    <table>
-        <tr><th>No</th><th>Berat</th><th>Nilai</th><th>Aksi</th></tr>
-        {% for item in items %}
-        <tr>
-            <td>{{ loop.index }}</td>
-            <td>
-                <form method="POST" class="inline">
-                    <input type="hidden" name="edit_index" value="{{ loop.index0 }}">
-                    <input type="number" step="any" name="edit_berat" value="{{ item[0] }}" required>
-            </td>
-            <td>
-                    <input type="number" step="any" name="edit_nilai" value="{{ item[1] }}" required>
-            </td>
-            <td>
-                    <button type="submit" name="edit_item">Edit</button>
-                </form>
-                <form method="POST" class="inline">
-                    <input type="hidden" name="delete_index" value="{{ loop.index0 }}">
-                    <button type="submit" name="delete_item" onclick="return confirm('Hapus item ini?')">Hapus</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+<body class="bg-gray-50 min-h-screen py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Implementasi Particle Swarm Optimization terhadap Knapsack Problem</h1>
+            
+            <form action="/result" method="POST" class="space-y-6">
+                <!-- Banyak Kasus Section -->
+                <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+                    <label for="banyakkasus" class="block text-sm font-medium text-gray-700 mb-2">
+                        Banyak Kasus
+                    </label>
+                    <input 
+                        type="number" 
+                        id="banyakkasus" 
+                        name="banyakkasus"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Masukkan jumlah kasus"
+                    >
+                </div>
+
+                <!-- Dynamic Populasi Section -->
+                <div class="populasi space-y-3"></div>
+
+                <!-- Data Barang Section -->
+                <div class="bg-green-50 p-6 rounded-lg border border-green-200">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Data Barang</h3>
+                    <div class="data space-y-6">
+                        {% for i in data %}
+                        <div class="item bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="namabarang" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Nama Barang
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        name="namabarang"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                        placeholder="Nama barang"
+                                        value="{{ i[0] }}"
+                                    >
+                                </div>
+                                <div>
+                                    <label for="beratbarang" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Berat Barang (Kg)
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        name="beratbarang"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                        placeholder="Berat (kg)"
+                                        step="0.01"
+                                        value="{{ i[1] }}"
+                                    >
+                                </div>
+                                <div>
+                                    <label for="banyakbarang" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Banyak Barang
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        name="banyakbarang"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                        placeholder="Jumlah"
+                                        value="{{ i[2] }}"
+                                    >
+                                </div>
+                                <div>
+                                    <label for="hargabeli" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Harga Beli (Rp)
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        name="hargabeli"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                        placeholder="Rp"
+                                        value="{{ i[3] }}"
+                                    >
+                                </div>
+                                <div class="md:col-span-1">
+                                    <label for="hargajual" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Harga Jual (Rp)
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        name="hargajual"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                        placeholder="Rp"
+                                        value="{{ i[4] }}"
+                                    >
+                                </div>
+                                <button 
+                                    id="hapus"
+                                    type="button"
+                                    class="mt-4 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                >
+                                    - Hapus Barang
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <button 
+                        id="tambah" 
+                        type="button"
+                        class="mt-4 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                    >
+                        + Tambah Barang
+                    </button>
+                </div>
+                <!-- Banyak Barang Section -->
+                <!-- <label for="banyakbarang" class="block text-sm font-medium text-gray-700 mb-2">
+                    Banyak Barang
+                </label>
+                <input 
+                    type="number" 
+                    id="banyakbarang" 
+                    name="banyakbarang"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Masukkan banyak barang yang ingin dihitung"
+                > -->
+
+                <!-- Parameter Section -->
+                <div class="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Parameter Algoritma</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Max Knapsack (Kg)
+                            </label>
+                            <input 
+                                type="number" 
+                                name="maxKnapsack"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                placeholder="Kapasitas maksimal (Kg)"
+                            >
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Iterasi
+                            </label>
+                            <input 
+                                type="number" 
+                                name="iterasi"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                placeholder="Jumlah iterasi"
+                            >
+                        </div>
+                        <!-- <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Ukuran Populasi
+                            </label>
+                            <input 
+                                type="number" 
+                                name="pop_size"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                placeholder="Ukuran populasi"
+                            >
+                        </div> -->
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center">
+                    <button 
+                        type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-lg"
+                    >
+                        Proses Data
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('tambah').addEventListener('click', function() {
+            const div = document.createElement('div')
+            div.classList.add('item', 'bg-white', 'p-4', 'rounded-lg', 'border', 'border-gray-200', 'shadow-sm')
+            div.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="namabarang" class="block text-sm font-medium text-gray-700 mb-1">
+                            Nama Barang
+                        </label>
+                        <input 
+                            type="text" 
+                            name="namabarang"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            placeholder="Nama barang"
+                        >
+                    </div>
+                    <div>
+                        <label for="beratbarang" class="block text-sm font-medium text-gray-700 mb-1">
+                            Berat Barang (Kg)
+                        </label>
+                        <input 
+                            type="number" 
+                            name="beratbarang"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            placeholder="Berat (kg)"
+                        >
+                    </div>
+                    <div>
+                        <label for="banyakbarang" class="block text-sm font-medium text-gray-700 mb-1">
+                            Banyak Barang
+                        </label>
+                        <input 
+                            type="number" 
+                            name="banyakbarang"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            placeholder="Jumlah"
+                        >
+                    </div>
+                    <div>
+                        <label for="hargabeli" class="block text-sm font-medium text-gray-700 mb-1">
+                            Harga Beli
+                        </label>
+                        <input 
+                            type="number" 
+                            name="hargabeli"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            placeholder="Rp"
+                        >
+                    </div>
+                    <div class="md:col-span-1">
+                        <label for="hargajual" class="block text-sm font-medium text-gray-700 mb-1">
+                            Harga Jual
+                        </label>
+                        <input 
+                            type="number" 
+                            name="hargajual"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            placeholder="Rp"
+                        >
+                    </div>
+                    <button 
+                        id="hapus"
+                        type="button"
+                        class="mt-4 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                    >
+                        - Hapus Barang
+                    </button>
+                </div>
+            `
+            document.querySelector('.data').appendChild(div);
+            document.querySelectorAll('#hapus').forEach(button => {
+                console.log(button)
+                button.addEventListener('click', function() {
+                    button.parentElement.parentElement.remove();
+                });
+            });
+        });
+
+        document.querySelectorAll('#hapus').forEach(button => {
+            console.log(button)
+            button.addEventListener('click', function() {
+                button.parentElement.parentElement.remove();
+            });
+        });
+
+        document.getElementById('banyakkasus').addEventListener('input', function() {
+            const banyakKasus = this.value;
+            const populasi = document.querySelector('.populasi');
+            populasi.innerHTML = '';
+            
+            if (banyakKasus > 0) {
+                const containerDiv = document.createElement('div');
+                containerDiv.classList.add('bg-yellow-50', 'p-6', 'rounded-lg', 'border', 'border-yellow-200');
+                containerDiv.innerHTML = '<h3 class="text-lg font-semibold text-gray-800 mb-4">Konfigurasi Kasus</h3>';
+                
+                const gridDiv = document.createElement('div');
+                gridDiv.classList.add('grid', 'grid-cols-1', 'md:grid-cols-2', 'lg:grid-cols-3', 'gap-4');
+                
+                for (let i = 0; i < banyakKasus; i++) {
+                    const div = document.createElement('div');
+                    div.classList.add('partikel');
+                    div.innerHTML = `
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Kasus ke-${i+1}
+                        </label>
+                        <input 
+                            type="number" 
+                            name="partikel"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                            placeholder="Banyak partikel"
+                        >
+                    `;
+                    gridDiv.appendChild(div);
+                }
+                
+                containerDiv.appendChild(gridDiv);
+                populasi.appendChild(containerDiv);
+            }
+        })
+    </script>
 </body>
 </html>
